@@ -1,0 +1,15 @@
+package com.mssv.tecpr.techpr;
+
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+@SpringBootApplication(exclude = {HibernateJpaAutoConfiguration.class})
+
+public class TechprApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TechprApplication.class, args);
+	}
+
+}

@@ -1,0 +1,202 @@
+openapi: 3.1.0
+info:
+  title: API de Gestión de Clientes y Préstamos
+  description: API para manejar clientes y préstamos con operaciones CRUD y cálculos asociados.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /clientes:
+    get:
+      summary: Obtener todos los clientes
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cliente'
+    post:
+      summary: Crear un nuevo cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cliente'
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+
+  /clientes/{id}:
+    put:
+      summary: Actualizar un cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cliente'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+        '404':
+          description: Cliente no encontrado
+    delete:
+      summary: Eliminar un cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cliente eliminado exitosamente
+        '404':
+          description: Cliente no encontrado
+
+  /clientes/procesar/{id}:
+    get:
+      summary: Procesar descuento para un cliente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultado del procesamiento del descuento
+        '404':
+          description: Cliente no encontrado
+
+  /prestamos:
+    get:
+      summary: Obtener todos los préstamos activos
+      responses:
+        '200':
+          description: Lista de préstamos activos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prestamo'
+    post:
+      summary: Crear un nuevo préstamo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prestamo'
+      responses:
+        '200':
+          description: Préstamo creado exitosamente
+
+  /prestamos/{id}/estado:
+    put:
+      summary: Actualizar el estado de un préstamo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nuevoEstado:
+                  type: string
+                  enum: [PENDIENTE, PAGADO]
+      responses:
+        '200':
+          description: Estado del préstamo actualizado exitosamente
+        '404':
+          description: Préstamo no encontrado
+
+  /prestamos/calcular/{clienteId}/{monto}:
+    get:
+      summary: Calcular el monto total a pagar para un préstamo
+      parameters:
+        - name: clienteId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: monto
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: tipoCliente
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [REGULAR, VIP]
+      responses:
+        '200':
+          description: Monto total calculado exitosamente
+        '400':
+          description: Error en los datos proporcionados
+
+components:
+  schemas:
+    Cliente:
+      type: object
+      required:
+        - id
+        - nombre
+        - email
+        - edad
+        - tipoCliente
+      properties:
+        id:
+          type: string
+        nombre:
+          type: string
+        email:
+          type: string
+          format: email
+        edad:
+          type: integer
+          minimum: 18
+        tipoCliente:
+          type: string
+          enum: [REGULAR, VIP]
+    Prestamo:
+      type: object
+      required:
+        - id
+        - monto
+        - clienteId
+        - fecha
+        - estado
+      properties:
+        id:
+          type: string
+        monto:
+          type: number
+          minimum: 0
+        clienteId:
+          type: string
+        fecha:
+          type: string
+          format: date
+        estado:
+          type: string
+          enum: [PENDIENTE, PAGADO]
